@@ -13,7 +13,7 @@ RUN cd "$(mktemp -d)" && \
   unzip libcairo2_1.14.6-1_amd64.deb.zip && \
   sudo dpkg -i libcairo2_1.14.6-1_amd64.deb && \
   mkdir -p ~/.fonts && mv *.ttf ~/.fonts && \
-  mkdir -p ~/.config/fontconfig && cat > ~/.config/fontconfig/fonts.conf <<EOF
+  mkdir -p ~/.config/fontconfig && cat > ~/.config/fontconfig/fonts.conf <<EOF \
   <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE fontconfig SYSTEM "fonts.dtd"> \
   <fontconfig> \
   <match> \
