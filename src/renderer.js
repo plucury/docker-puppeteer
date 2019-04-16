@@ -41,7 +41,7 @@ class Renderer {
       const { scale, displayHeaderFooter, printBackground, landscape } = extraOptions
       const buffer = await page.pdf({
         ...extraOptions,
-        scale: Number(scale),
+        scale: Number(scale) || 1,
         displayHeaderFooter: displayHeaderFooter === 'true',
         printBackground: printBackground === 'true',
         landscape: landscape === 'true',
@@ -83,7 +83,9 @@ class Renderer {
 }
 
 async function create() {
-  const browser = await puppeteer.launch({ args: ['--no-sandbox'] })
+  const browser = await puppeteer.launch({
+    args: ['--no-sandbox'],
+  })
   return new Renderer(browser)
 }
 

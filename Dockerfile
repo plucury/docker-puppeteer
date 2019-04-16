@@ -1,4 +1,4 @@
-FROM node:8
+FROM node:11.14
 
 LABEL maintainer="jli@ariesapp.com"
 
@@ -32,5 +32,6 @@ RUN cd /app && yarn install --quiet
 EXPOSE 3000
 
 WORKDIR /app
+RUN mkdir tmp
 
 CMD npm run start
