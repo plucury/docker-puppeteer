@@ -21,6 +21,8 @@ RUN \
   mkdir -p ~/.fonts && mv *.ttf ~/.fonts && \
   mkdir -p ~/.config/fontconfig && \
   cp /fonts.conf ~/.config/fontconfig && \
+  curl -L --silent https://s3.amazonaws.com/aries_static/qs3/fonts.tar.gz $url | tar x -z && \
+  cp fonts/*  ~/.fonts && \
   fc-cache -f -v
 
 RUN yarn add puppeteer
@@ -32,6 +34,6 @@ RUN cd /app && yarn install --quiet
 EXPOSE 3000
 
 WORKDIR /app
-RUN mkdir tmp
+RUN rm -rf tmp & mkdir tmp
 
 CMD npm run start
