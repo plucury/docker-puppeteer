@@ -14,6 +14,10 @@ app.disable('x-powered-by')
 
 // Render url.
 app.use(async (req, res, next) => {
+  if (req.path === '/health_check') {
+    return res.status(200).send('OK')
+  }
+
   let { url, outputType, ...options } = req.query
 
   if (!url) {
