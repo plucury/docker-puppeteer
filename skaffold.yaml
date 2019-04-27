@@ -7,7 +7,7 @@ build:
     docker: {}
   tagPolicy:
     envTemplate:
-      template: '{{.DOCKER_REGISTRY}}/plucury/docker-puppeteer:{{.VERSION}}'
+      template: '{{.DOCKER_REGISTRY}}/ariesapp/docker-puppeteer:{{.VERSION}}'
   local: {}
 deploy:
   kubectl: {}
@@ -18,7 +18,7 @@ profiles:
     - docker: {}
     tagPolicy:
       envTemplate:
-        template: '{{.DOCKER_REGISTRY}}/plucury/docker-puppeteer:{{.DIGEST_HEX}}'
+        template: '{{.DOCKER_REGISTRY}}/ariesapp/docker-puppeteer:{{.DIGEST_HEX}}'
     local: {}
   deploy:
     helm:
@@ -26,5 +26,5 @@ profiles:
       - name: docker-puppeteer
         chartPath: charts/docker-puppeteer
         setValueTemplates:
-          image.repository: '{{.DOCKER_REGISTRY}}/plucury/docker-puppeteer'
+          image.repository: '{{.DOCKER_REGISTRY}}/ariesapp/docker-puppeteer'
           image.tag: '{{.DIGEST_HEX}}'

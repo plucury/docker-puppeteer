@@ -3,7 +3,7 @@ pipeline {
     label "jenkins-nodejs"
   }
   environment {
-    ORG = 'plucury'
+    ORG = 'AriesApp'
     APP_NAME = 'docker-puppeteer'
     CHARTMUSEUM_CREDS = credentials('jenkins-x-chartmuseum')
   }
