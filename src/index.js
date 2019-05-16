@@ -4,9 +4,12 @@ const express = require('express')
 var fs = require('fs')
 var path = require('path')
 var multer = require('multer')
+var crypto = require('crypto')
 const createRenderer = require('./renderer')
 
 const port = process.env.PORT || 3000
+const salt = process.env.SALT
+
 const upload = multer({
   storage: multer.diskStorage({
     destination: function(req, file, cb) {
@@ -31,16 +34,14 @@ let renderer = null
 // Configure.
 app.disable('x-powered-by')
 
-
 app.use(upload.single('html'), async (req, res, next) => {
-
   if (req.path === '/health_check') {
     return res.status(200).send('OK')
   }
 
   let url, outputType, options
   if (req.method == 'GET') {
-    ;({ url, outputType, ...options } = req.query)
+    ;({ url, outputType, ts, checksum, ...options } = req.query)
     if (!url) {
       return res.status(400).send('Search with url parameter. For eaxample, ?url=http://yourdomain')
     }
@@ -52,14 +53,25 @@ app.use(upload.single('html'), async (req, res, next) => {
     if (!req.file) {
       return res.status(400).send('You must upload a file!')
     }
-    ;({ outputType, ...options } = req.body)
+    ;({ outputType, s, checksum, ...options } = req.body)
     url = 'file://' + path.resolve(req.file.path)
   }
 
-  console.log(url, outputType)
-
   if (!outputType) {
     return res.status(400).send('Unkonwn outputType.')
+  }
+
+  if (!ts || !checksum) {
+    return res.status(400).send('Invalid checksum.')
+  }
+
+  let md5 = crypto.createHash('md5')
+  md5.update(outputType)
+  md5.update(ts)
+  md5.update(salt)
+  let realChecksum = md5.digest('hex')
+  if (realChecksum != checksum) {
+    return res.status(400).send('Incorrect checksum.')
   }
 
   try {
