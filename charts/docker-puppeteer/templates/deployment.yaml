@@ -24,10 +24,32 @@ spec:
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
+{{- if .Values.global }}
+{{- if .Values.global.WFGlobalEnv }}
+{{- range $pkey, $pval := .Values.global.WFGlobalEnv }}
+        - name: {{ $pkey }}
+          value: {{ $pval }}
+{{- end }}
+{{- end }}
+{{- if .Values.global.WFGlobalSecret }}
+{{- $dot := . }}
+{{- range $pkey, $pval := .Values.global.WFGlobalSecret }}
+        - name: {{ $pkey }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "fullname" $dot }}
+              key: {{ $pkey }}
+{{- end }}
+{{- end }}
+{{- end }}
 {{- range $pkey, $pval := .Values.env }}
         - name: {{ $pkey }}
           value: {{ $pval }}
 {{- end }}
+        - name: K8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
         ports:
         - containerPort: {{ .Values.service.internalPort }}
         livenessProbe:

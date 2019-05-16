@@ -7,6 +7,11 @@ pipeline {
     APP_NAME = 'docker-puppeteer'
     CHARTMUSEUM_CREDS = credentials('jenkins-x-chartmuseum')
   }
+  parameters {
+    booleanParam(name: 'DEPLOY_PRODUCTION', defaultValue: false, description: '')
+    booleanParam(name: 'DEPLOY_DEVELOPMENT', defaultValue: false, description: '')
+    string(name: 'DEPLOY_VERSION', defaultValue: '', description: 'If $DEPLOY_VERSION is empty, build the master and deploy it')
+  }
   stages {
     stage('CI Build and push snapshot') {
       when {
@@ -33,6 +38,7 @@ pipeline {
     stage('Build Release') {
       when {
         branch 'master'
+        equals expected: '', actual: params.DEPLOY_VERSION
       }
       steps {
         container('nodejs') {
@@ -55,6 +61,7 @@ pipeline {
     stage('Promote to Environments') {
       when {
         branch 'master'
+        equals expected: '', actual: params.DEPLOY_VERSION
       }
       steps {
         container('nodejs') {
@@ -67,6 +74,44 @@ pipeline {
             // promote through all 'Auto' promotion Environments
             sh "jx promote -b --all-auto --timeout 1h --version \$(cat ../../VERSION)"
           }
+        }
+      }
+    }
+       stage('Deploy to Production'){
+      when {
+        branch 'master'
+        equals expected: true, actual: params.DEPLOY_PRODUCTION
+      }
+      steps {
+        container('nodejs') {
+           dir('./charts/docker-puppeteer'){
+             script {
+              if(params.DEPLOY_VERSION != ''){
+                sh "jx promote --version ${params.DEPLOY_VERSION} --env production --timeout 1h --batch-mode"
+              }else{
+                sh "jx promote --version \$(cat ../../VERSION) --env production --timeout 1h --batch-mode"
+              }
+            }
+           }
+        }
+      }
+    }
+    stage('Deploy to Development'){
+      when {
+        branch 'master'
+        equals expected: true, actual: params.DEPLOY_DEVELOPMENT
+      }
+      steps {
+        container('nodejs') {
+           dir('./charts/docker-puppeteer'){
+             script {
+              if(params.DEPLOY_VERSION != ''){
+                sh "jx promote --version ${params.DEPLOY_VERSION} --env development --timeout 1h --batch-mode"
+              }else{
+                sh "jx promote --version \$(cat ../../VERSION) --env development --timeout 1h --batch-mode"
+              }
+             }
+           }
         }
       }
     }
